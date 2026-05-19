@@ -13,23 +13,29 @@ class CPU:
         '''Create the CPU object and create the variables'''
         self.memory:Memory
 
-        self.A:int
-        self.X:int
-        self.Y:int
-        self.PC:int
-        self.IR:int
+        self.a:int
+        self.x:int
+        self.y:int
+        self.ir:int
         self.flags:int
+        
+        self.pc:int
     
     def reset(self, memory:Memory):
         '''Resets the CPU'''
         self.memory = memory
 
         # Reset the registers
-        self.A = 0
-        self.X = 0
-        self.Y = 0
-        self.PC = (memory.read(0xFFFF) << 8) | memory.read(0xFFFE)
-        print(f'PC reset to {hex(self.PC)}')
-        self.IR = 0
+        self.a = 0
+        self.x = 0
+        self.y = 0
+        self.ir = 0
         self.flags = 0
+
+        self.pc = (memory.read(0xFFFF) << 8) | memory.read(0xFFFE)
+        print(f'PC reset to {hex(self.pc)}')
+    
+    def fetch_decode_execute(self, memory:Memory):
+        self.pc = (self.pc + 1) & 0xFFFF
+        self.ir = memory.read(self.pc)
     

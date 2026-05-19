@@ -5,7 +5,7 @@ from __future__ import annotations
 
 class Memory:
     '''Basic memory class'''
-    def __init__(self, size=0x10000):
+    def __init__(self, size:int=0x10000):
         '''Initilize this memory module'''
         self.memory = bytearray(size)
         print(f'Memory initilized with size {size/1024} KB')

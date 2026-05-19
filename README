@@ -5,3 +5,43 @@ Memory Map
 * 0xEF00 - 0xEFFF   : Stack
 * 0xF000 - 0xFFFD   : Unused
 * 0xFFFE - 0xFFFF   : Program Start Pointer
+
+Instructions
+---
+* A Register Manipulation<br>
+  * 0x01 : LDA<br>
+    * Load A register with next value in memory<br>
+  * 0x02 : STA<br>
+    * Stores A register at location specified from next two memory cells<br>
+  * 0x03 : ADA<br>
+    * Adds next memory cell to A register<br>
+  * 0x04 : SBA<br>
+    * Subtracts next memory cell from A register<br>
+* X Register Manipulation<br> 
+  * 0x11 : LDX<br>
+    * Load X register with next value in memory<br>
+  * 0x12 : STX<br>
+    * Stores X register at location specified from next two memory cells<br>
+  * 0x13 : ADX<br>
+    * Adds next memory cell to X register<br>
+  * 0x14 : SBX<br>
+    * Subtracts next memory cell from X register<br>
+* Y Register Manipulation<br>
+  * 0x21 : LDY<br>
+    * Load Y register with next value in memory<br>
+  * 0x22 : STY<br>
+    * Stores Y register at location specified from next two memory cells<br>
+  * 0x23 : ADY<br>
+    * Adds next memory cell to Y register<br>
+  * 0x24 : SBY<br>
+    * Subtracts next memory cell from Y register<br>
+* Flow Control<br>
+  * 0x00 : NOP<br>
+    * No Operation<br>
+  * 0x30 : JMP<br>
+    * Jumps the PC to the location specified from next two memory cells<br>
+  * 0x31 : JSR<br>
+    * Pushes PC to stack and jumps to a subroutine<br>
+  * 0x32 : RSR<br>
+    * Pops PC from stack and returns from subroutine<br>
+ 
