@@ -4,10 +4,10 @@ Basic memory module settings
 
 class Memory:
     '''Basic memory class'''
-    def __init__(self, size=0xFFFF):
+    def __init__(self, size=0x10000):
         '''Initilize this memory module'''
         self.memory = bytearray(size)
-        print(f'Memory initilized with size {hex(size)}')
+        print(f'Memory initilized with size {size/1024} KB')
     
     def write(self, address:int, value:int):
         '''Writes to a value in memory'''
@@ -16,5 +16,5 @@ class Memory:
 
     def read(self, address:int):
         '''Reads a value in memory'''
-        print(f'Read {self.memory[address]}')
-        return self.memory[address & 0xFFFF]
+        print(f'Read {self.memory[address & 0x10000]}')
+        return self.memory[address & 0x10000]
