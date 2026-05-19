@@ -1,15 +1,17 @@
 '''
 The default CPU class that holds all CPU variables, methods, instructions, and etc.
 '''
-import memory # Import memory for the basic functions
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from collections.abc import Callable
 
-class Instructions:
-    pass
+if TYPE_CHECKING:
+    from .memory import Memory
 
 class CPU:
     def __init__(self):
         '''Create the CPU object and create the variables'''
-        self.memory:memory.Memory
+        self.memory:Memory
 
         self.A:int
         self.X:int
@@ -18,10 +20,10 @@ class CPU:
         self.IR:int
         self.flags:int
     
-    def reset(self, memory:memory.Memory):
+    def reset(self, memory:Memory):
         '''Resets the CPU'''
         self.memory = memory
-        
+
         # Reset the registers
         self.A = 0
         self.X = 0
@@ -30,3 +32,4 @@ class CPU:
         print(f'PC reset to {hex(self.PC)}')
         self.IR = 0
         self.flags = 0
+    

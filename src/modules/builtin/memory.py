@@ -1,6 +1,7 @@
 '''
 Basic memory module settings
 '''
+from __future__ import annotations
 
 class Memory:
     '''Basic memory class'''
