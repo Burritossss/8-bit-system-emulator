@@ -1,47 +1,47 @@
 Memory Map
 ---
- * 0x0000 - 0x00FF   : Stack
- * 0x0100 - 0x8FFF   : RAM
- * 0x9000 - 0xEFFF   : ROM
- * 0xF000 - 0xFFFD   : Unused
- * 0xFFFE - 0xFFFF   : Program Start Pointer
+* 0x0000 - 0x00FF   : Stack
+* 0x0100 - 0x8FFF   : RAM
+* 0x9000 - 0xEFFF   : ROM
+* 0xF000 - 0xFFFD   : Unused
+* 0xFFFE - 0xFFFF   : Program Start Pointer
 
 Instructions
 ---
- * A Register Manipulation
-   * 0x01 : LDA
-     * Load A register with next value in memory
-   * 0x02 : STA
-     * Stores A register at location specified from next two memory cells
-   * 0x03 : ADA
-     * Adds next memory cell to A register
-   * 0x04 : SBA
-     * Subtracts next memory cell from A register
- * X Register Manipulation
-   * 0x11 : LDX
-     * Load X register with next value in memory
-   * 0x12 : STX
-     * Stores X register at location specified from next two memory cells
-   * 0x13 : ADX
-     * Adds next memory cell to X register
-   * 0x14 : SBX
-     * Subtracts next memory cell from X register
- * Y Register Manipulation
-   * 0x21 : LDY
-     * Load Y register with next value in memory
-   * 0x22 : STY
-     * Stores Y register at location specified from next two memory cells
-   * 0x23 : ADY
-     * Adds next memory cell to Y register
-   * 0x24 : SBY
-     * Subtracts next memory cell from Y register
- * Flow Control
-   * 0x00 : NOP
-     * No Operation
-   * 0x30 : JMP
-     * Jumps the PC to the location specified from next two memory cells
-   * 0x31 : JSR
-     * Pushes PC to stack and jumps to a subroutine
-   * 0x32 : RSR
-     * Pops PC from stack and returns from subroutine
+* A Register Manipulation
+  * 0x01 : LDA
+    * Load A register with next value in memory
+  * 0x02 : STA
+    * Stores A register at location specified from next two memory cells
+  * 0x03 : ADA
+    * Adds next memory cell to A register
+  * 0x04 : SBA
+    * Subtracts next memory cell from A register
+* X Register Manipulation
+  * 0x11 : LDX
+    * Load X register with next value in memory
+  * 0x12 : STX
+    * Stores X register at location specified from next two memory cells
+  * 0x13 : ADX
+    * Adds next memory cell to X register
+  * 0x14 : SBX
+    * Subtracts next memory cell from X register
+* Y Register Manipulation
+  * 0x21 : LDY
+    * Load Y register with next value in memory
+  * 0x22 : STY
+    * Stores Y register at location specified from next two memory cells
+  * 0x23 : ADY
+    * Adds next memory cell to Y register
+  * 0x24 : SBY
+    * Subtracts next memory cell from Y register
+* Flow Control
+  * 0x00 : NOP
+    * No Operation
+  * 0x30 : JMP
+    * Jumps the PC to the location specified from next two memory cells
+  * 0x31 : JSR
+    * Pushes PC to stack and jumps to a subroutine
+  * 0x32 : RSR
+    * Pops PC from stack and returns from subroutine
  
