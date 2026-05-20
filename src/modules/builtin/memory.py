@@ -13,12 +13,13 @@ class Memory:
     def write(self, address:int, value:int):
         '''Writes to a value in memory'''
         self.memory[address] = value & 0xFF
-        print(f'Wrote {value:#2x} to {address:#4x}')
+        print(f'Wrote {value & 0xFF} to {address:#4x}')
+        print(self.memory[address])
 
     def read(self, address:int):
         '''Reads a value in memory'''
-        print(f'Read {self.memory[address & 0x10000]:#2x}')
-        return self.memory[address & 0x10000]
+        print(f'Read {self.memory[address & 0xFFFF]:#2x}')
+        return self.memory[address & 0xFFFF]
 
     def loadROM(self, bytes:bytes):
         '''Loads the program ROM'''

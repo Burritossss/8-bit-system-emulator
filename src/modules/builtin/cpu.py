@@ -3,10 +3,10 @@ The default CPU class that holds all CPU variables, methods, instructions, and e
 '''
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from .instructions import OPCODE_TABLE
 
 if TYPE_CHECKING:
     from .memory import Memory
-    from .instructions import OPCODE_TABLE
 
 class CPU:
     def __init__(self):
@@ -37,7 +37,7 @@ class CPU:
         self.flags = 0
 
         # Reset the PC
-        self.pc = (memory.read(0xFFFF) << 8) | memory.read(0xFFFE)
+        self.pc = ((memory.read(0xFFFF) << 8) | memory.read(0xFFFE)) - 1
         print(f'PC reset to {hex(self.pc)}')
 
         self.cycles = 3
@@ -47,7 +47,7 @@ class CPU:
         self.pc = (self.pc + 1) & 0xFFFF
         self.ir = memory.read(self.pc)
 
-        if self.ir in OPCODE_TABLE.keys():
+        if self.ir in OPCODE_TABLE:
             self.cycles += OPCODE_TABLE[self.ir](self, memory)
         else:
             print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
