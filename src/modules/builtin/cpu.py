@@ -39,19 +39,19 @@ class CPU:
 
         # Reset the PC
         self.pc = ((memory.read(0xFFFF) << 8) | memory.read(0xFFFE)) - 1
-        print(f'PC reset to {hex(self.pc)}')
+        #print(f'PC reset to {hex(self.pc)}')
         self.rom_loaded = True # ROM has been loaded
 
         self.cycles = 3
     
-    def fetch_decode_execute(self, memory:Memory):
+    def fetch_decode_execute(self):
         '''Fetch, decode, and execute an instruction'''
         self.pc = (self.pc + 1) & 0xFFFF
-        self.ir = memory.read(self.pc)
+        self.ir = self.memory.read(self.pc)
 
         if self.ir in OPCODE_TABLE:
-            self.cycles += OPCODE_TABLE[self.ir](self, memory)
+            self.cycles += OPCODE_TABLE[self.ir](self, self.memory)
         else:
-            print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
+            pass #print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
 
     
