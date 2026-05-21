@@ -24,6 +24,7 @@ class CPU:
         self.cycles:int # Counter for cycles
 
         self.paused = True # CPU starts paused
+        self.rom_loaded = False # CPU starts without a ROM
     
     def reset(self, memory:Memory):
         '''Resets the CPU'''
@@ -39,6 +40,7 @@ class CPU:
         # Reset the PC
         self.pc = ((memory.read(0xFFFF) << 8) | memory.read(0xFFFE)) - 1
         print(f'PC reset to {hex(self.pc)}')
+        self.rom_loaded = True # ROM has been loaded
 
         self.cycles = 3
     
