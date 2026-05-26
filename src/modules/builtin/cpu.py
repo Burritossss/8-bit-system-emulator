@@ -18,10 +18,9 @@ class CPU:
         self.y:int
         self.ir:int
         self.flags:int
+        self.sp:int
         
         self.pc:int
-
-        self.cycles = 0 # Counter for cycles
 
         self.paused = True # CPU starts paused
         self.rom_loaded = False # CPU starts without a ROM
@@ -35,6 +34,7 @@ class CPU:
         self.x = 0
         self.y = 0
         self.ir = 0
+        self.sp = 0xFF
         self.flags = 0
 
         # Reset the PC
@@ -42,7 +42,6 @@ class CPU:
         #print(f'PC reset to {hex(self.pc)}')
         self.rom_loaded = True # ROM has been loaded
 
-        self.cycles = 3
     
     def fetch_decode_execute(self):
         '''Fetch, decode, and execute an instruction'''
@@ -50,7 +49,7 @@ class CPU:
         self.pc = (self.pc + 1) & 0xFFFF
 
         if self.ir in OPCODE_TABLE:
-            self.cycles += OPCODE_TABLE[self.ir](self, self.memory)
+            OPCODE_TABLE[self.ir](self, self.memory)
         else:
             pass #print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
 

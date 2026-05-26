@@ -118,8 +118,6 @@ def app(stdscr:curses.window):
         try: controls.addstr(8, 1, f'PC: {cpu.pc:#6x}') # Program Counter
         except AttributeError: controls.addstr(8, 1, 'PC: N/A')
 
-        controls.addstr(10, 1, f'cycles: {cpu.cycles}')
-
         # Calculate FPS
         elapsed = time.perf_counter() - frame_start
         fps = 1.0 / elapsed
