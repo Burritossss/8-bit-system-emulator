@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import filedialog
 import time
 from modules.builtin import CPU, Memory # Import our builtins
+from settings import * # Import settings
 
 def openFilePicker():
     '''Opens a file picker to let you open a ROM'''
@@ -39,7 +40,7 @@ def app(stdscr:curses.window):
     menu.addstr(1, menu_title_x, 'Menu')
 
     # Menu Bar Buttons
-    buttons = ['[L]oad ROM', '[Q]uit', '[S]tep']
+    buttons = ['[L]oad ROM', '[Q]uit', '[S]tep', '[R]un']
 
     # Create the Emulator components
     memory = Memory()
@@ -47,6 +48,14 @@ def app(stdscr:curses.window):
 
     # Infinite loop
     while True:
+        frame_start = time.perf_counter()
+
+        # CPU handling =============================================================
+        if not cpu.paused:
+            for _ in range(CYCLESPERFRAME): # Run at 24 fps
+                cpu.fetch_decode_execute()
+            stdscr.addstr(curses.LINES-1, 0, 'CPU is running')
+
         # Key Handling =============================================================
         k = stdscr.getch() # Get key presses
 
@@ -55,16 +64,22 @@ def app(stdscr:curses.window):
                 cpu.fetch_decode_execute()
             else:
                 stdscr.addstr(curses.LINES-1, 0, 'ROM is not loaded! Please load a ROM first.')
+        
+        if k == ord('r'):
+            if cpu.paused and cpu.rom_loaded:
+                cpu.paused = False
+            else:
+                cpu.paused = True
 
         if k == ord('l'): # Check if L is pressed, if so, load a ROM
             # Open the file picker
             file = openFilePicker()
             if file:
-                with open(file, 'rb') as bytes:
-                    byte_data = bytes.read()
                 try:
-                    memory.loadROM(byte_data)
-                    cpu.reset(memory)
+                    with open(file, 'rb') as bytes:
+                        byte_data = bytes.read()
+                        memory.loadROM(byte_data)
+                        cpu.reset(memory)
                 except Exception as e:
                     stdscr.addstr(curses.LINES-1, 0, f'Failed to load ROM. Reason: {e}')
 
@@ -72,10 +87,23 @@ def app(stdscr:curses.window):
             break
         
         # Drawing ====================================================================
-        controls.clear() # Clear the controls screen to prevent the previous things being shown
+        controls.erase() # Clear the controls screen to prevent the previous things being shown
+        menu.erase() # Clear the screen
 
+        stdscr.move(curses.LINES - 1, 0)
+        stdscr.clrtoeol()
+        
+        # Draw the borders of the windows
+        menu.border()
+        controls.border()
 
         controls.addstr(2, 1, f'ROM Loaded: {cpu.rom_loaded}') # If the ROM is loaded
+        
+        # Menu Bar Drawing
+        total_x = 1
+        for button in buttons:
+            menu.addstr(0, total_x, button)
+            total_x += len(button)+1
         
         # Registers
         try:    
@@ -90,26 +118,22 @@ def app(stdscr:curses.window):
         try: controls.addstr(8, 1, f'PC: {cpu.pc:#6x}') # Program Counter
         except AttributeError: controls.addstr(8, 1, 'PC: N/A')
 
-        controls.addstr(10, 1, f'cycles: {cpu.cycles}') # Cycles
-        
-        # Draw the borders of the windows
-        menu.border()
-        controls.border()
+        controls.addstr(10, 1, f'cycles: {cpu.cycles}')
 
-        # Menu Bar Drawing
-        total_x = 1
-        for button in buttons:
-            menu.addstr(0, total_x, button)
-            total_x += len(button)+1
-
+        # Calculate FPS
+        elapsed = time.perf_counter() - frame_start
+        fps = 1.0 / elapsed
+        stdscr.addstr(curses.LINES-1, curses.COLS - len(f'FPS: {fps:.2f}')-2, f'FPS: {fps:.2f}')
 
         # Refresh Screen =================================================
         menu.noutrefresh()
         controls.noutrefresh()
         curses.doupdate()
 
-        time.sleep(0.1)
-
+        executiontime = time.perf_counter() - frame_start
+        sleep = TARGETDELTATIME - executiontime
+        if sleep > 0:
+            time.sleep(sleep)
 
 if __name__ == '__main__':
     wrapper(app)

@@ -1,0 +1,5 @@
+FPS = 60.0 # 60 frames per second
+CLOCKSPEED = 1020000   # In hertz
+
+CYCLESPERFRAME = int(CLOCKSPEED // FPS)
+TARGETDELTATIME = 1.0 / FPS
