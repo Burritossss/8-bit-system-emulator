@@ -147,9 +147,20 @@ def jsr(cpu:CPU, memory:Memory):
     cpu.pc = address
 
 
+def rsr(cpu:CPU, memory:Memory):
+    '''Pulls the PC from stack, and returns from the subroutine'''
+    low = memory.read(cpu.sp)
+    cpu.sp = (cpu.sp + 1) & 0xFF
+    high = memory.read(cpu.pc)
+    cpu.sp = (cpu.sp + 1) & 0xFF
+    address = ((high << 8) | low) & 0xFFFF
+
+    cpu.pc = address
+
+
 # Create OPCODE table for the CPU
 OPCODE_TABLE:dict[int, Callable[[CPU, Memory], None]] = {
-    0x00 : nop, 0x30 : jmp, 0x31 : jxz, 0x32 : jyz,
+    0x00 : nop, 0x30 : jmp, 0x31 : jxz, 0x32 : jyz, 0x33 : jsr, 0x34 : rsr,
     0x01 : lda, 0x02 : sta, 0x03 : ada, 0x04 : sba,
     0x11 : ldx, 0x12 : stx, 0x13 : adx, 0x14 : sbx,
     0x21 : ldy, 0x22 : sty, 0x23 : ady, 0x24 : sby,
