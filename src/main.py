@@ -38,7 +38,6 @@ def app(stdscr:curses.window):
     controls.addstr(1, controls_title_x, 'Controls')
     menu.addstr(1, menu_title_x, 'Menu')
 
-
     # Menu Bar Buttons
     buttons = ['[L]oad ROM', '[Q]uit', '[S]tep']
 
@@ -48,34 +47,6 @@ def app(stdscr:curses.window):
 
     # Infinite loop
     while True:
-        # Draw the borders of the windows
-        menu.border()
-        controls.border()
-
-        # Menu Bar Drawing ==========================================================
-        total_x = 1
-        for button in buttons:
-            stdscr.addstr(0, total_x, button)
-            total_x += len(button)+1
-
-        # Controls Drawing ==========================================================
-        controls.clear() # Clear the controls screen to prevent the previous things being shown
-
-        controls.addstr(2, 1, f'ROM Loaded: {cpu.rom_loaded}') # If the ROM is loaded
-        
-        # Registers
-        try:    
-            controls.addstr(4, 1, f'A: {cpu.a}') # A Register
-            controls.addstr(5, 1, f'X: {cpu.x}') # X Register
-            controls.addstr(6, 1, f'Y: {cpu.y}') # Y Register
-        except AttributeError:
-            controls.addstr(4, 1, 'A: N/A')
-            controls.addstr(5, 1, 'X: N/A')
-            controls.addstr(6, 1, 'Y: N/A')
-        
-        try: controls.addstr(8, 1, f'PC: {cpu.pc}')
-        except AttributeError: controls.addstr(8, 1, 'PC: N/A')
-
         # Key Handling =============================================================
         k = stdscr.getch() # Get key presses
 
@@ -99,6 +70,38 @@ def app(stdscr:curses.window):
 
         if k == ord('q'): # Check if Q is pressed, if so, exit the program
             break
+        
+        # Drawing ====================================================================
+        controls.clear() # Clear the controls screen to prevent the previous things being shown
+
+
+        controls.addstr(2, 1, f'ROM Loaded: {cpu.rom_loaded}') # If the ROM is loaded
+        
+        # Registers
+        try:    
+            controls.addstr(4, 1, f'A: {cpu.a:#4x}') # A Register
+            controls.addstr(5, 1, f'X: {cpu.x:#4x}') # X Register
+            controls.addstr(6, 1, f'Y: {cpu.y:#4x}') # Y Register
+        except AttributeError:
+            controls.addstr(4, 1, 'A: N/A')
+            controls.addstr(5, 1, 'X: N/A')
+            controls.addstr(6, 1, 'Y: N/A')
+        
+        try: controls.addstr(8, 1, f'PC: {cpu.pc:#6x}') # Program Counter
+        except AttributeError: controls.addstr(8, 1, 'PC: N/A')
+
+        controls.addstr(10, 1, f'cycles: {cpu.cycles}') # Cycles
+        
+        # Draw the borders of the windows
+        menu.border()
+        controls.border()
+
+        # Menu Bar Drawing
+        total_x = 1
+        for button in buttons:
+            menu.addstr(0, total_x, button)
+            total_x += len(button)+1
+
 
         # Refresh Screen =================================================
         menu.noutrefresh()

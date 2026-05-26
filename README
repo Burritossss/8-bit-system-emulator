@@ -1,10 +1,14 @@
 Memory Map
 ---
-- 0x0000 - 0x00FF   : Stack
-- 0x0100 - 0x8FFF   : RAM
-- 0x9000 - 0xEFFF   : ROM
-- 0xF000 - 0xFFFD   : Unused
-- 0xFFFE - 0xFFFF   : Program Start Pointer
+- 0x0000 - 0x5FFF   : RAM
+  - 0x0000 - 0x00FF : Stack
+  - 0x0100 - 0x5FFF : RAM
+- 0x6000 - 0x6401   : Storage
+  - 0x6000 - 0x6400 : 1024 bytes * bank
+  - 0x6001          : Bank select (64 bank loops after 64)
+- 0x6402 - 0x6FFF   : Unused
+- 0x7000 - 0xFFFD   : ROM
+- 0xFFFE - 0xFFFF   : Reset Vector
 
 Instructions
 ---
@@ -40,8 +44,12 @@ Instructions
     - No Operation
   - 0x30 : JMP
     - Jumps the PC to the location specified from next two memory cells
-  - 0x31 : JSR*
+  - 0x31 : JXZ
+    - Similar to the JMP instruction except it only jumps when X is zero
+  - 0x32 : JYZ
+    - Similar to the JMP instruction except it only jumps when Y is zero
+  - 0x33 : JSR*
     - Pushes PC to stack and jumps to a subroutine 
-  - 0x32 : RSR*
+  - 0x34 : RSR*
     - Pops PC from stack and returns from subroutine
 ###### *not implemented

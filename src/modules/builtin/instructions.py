@@ -10,10 +10,10 @@ class HelperFuncs:
     @staticmethod
     def pullAddress(memory:Memory, cpu:CPU):
         '''Pull an address'''
-        cpu.pc += 1
         low = memory.read(cpu.pc)
-        cpu.pc += 1
+        cpu.pc = (cpu.pc + 1) & 0xFFFF
         high = memory.read(cpu.pc)
+        cpu.pc = (cpu.pc + 1) & 0xFFFF
         return ((high << 8) | low) & 0xFFFF
 
 def nop(cpu:CPU, memory:Memory):
@@ -21,8 +21,8 @@ def nop(cpu:CPU, memory:Memory):
 
 def lda(cpu:CPU, memory:Memory):
     '''Load to A register'''
-    cpu.pc = (cpu.pc + 1) % 0xFFFF
     cpu.a = memory.read(cpu.pc) & 0xFF
+    cpu.pc = (cpu.pc + 1) % 0xFFFF
     return 2
 
 def sta(cpu:CPU, memory:Memory):
@@ -34,16 +34,19 @@ def sta(cpu:CPU, memory:Memory):
 def ada(cpu:CPU, memory:Memory):
     '''Add to A register'''
     cpu.a = (cpu.a + memory.read(cpu.pc)) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def sba(cpu:CPU, memory:Memory):
     '''Subtract from A register'''
     cpu.a = (cpu.a - memory.read(cpu.pc)) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def ldx(cpu:CPU, memory:Memory):
     '''Load to X register'''
     cpu.x = memory.read(cpu.pc) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def stx(cpu:CPU, memory:Memory):
@@ -55,16 +58,19 @@ def stx(cpu:CPU, memory:Memory):
 def adx(cpu:CPU, memory:Memory):
     '''Add to X register'''
     cpu.x = (cpu.x + memory.read(cpu.pc)) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def sbx(cpu:CPU, memory:Memory):
     '''Subtract from X register'''
     cpu.x = (cpu.x - memory.read(cpu.pc)) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def ldy(cpu:CPU, memory:Memory):
     '''Load to Y register'''
     cpu.y = memory.read(cpu.pc) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def sty(cpu:CPU, memory:Memory):
@@ -76,11 +82,13 @@ def sty(cpu:CPU, memory:Memory):
 def ady(cpu:CPU, memory:Memory):
     '''Add to Y register'''
     cpu.y = (cpu.y + memory.read(cpu.pc)) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def sby(cpu:CPU, memory:Memory):
     '''Subtract from Y register'''
     cpu.y = (cpu.y - memory.read(cpu.pc)) & 0xFF
+    cpu.pc = (cpu.pc + 1) & 0xFFFF
     return 2
 
 def jmp(cpu:CPU, memory:Memory):
@@ -89,9 +97,28 @@ def jmp(cpu:CPU, memory:Memory):
     cpu.pc = address
     return 3
 
+def jxz(cpu:CPU, memory:Memory):
+    '''Jumps if X register is zero'''
+    address = HelperFuncs.pullAddress(memory, cpu)
+    if cpu.x != 0:
+        cpu.pc = address
+    else:
+        pass
+    return 4
+
+def jyz(cpu:CPU, memory:Memory):
+    '''Jumps if Y register is zero'''
+    address = HelperFuncs.pullAddress(memory, cpu)
+    if cpu.y != 0:
+        cpu.pc = address
+    else:
+        pass
+    return 4
+
+
 # Create OPCODE table for the CPU
 OPCODE_TABLE:dict[int, Callable[[CPU, Memory], int]] = {
-    0x00 : nop, 0x30 : jmp,
+    0x00 : nop, 0x30 : jmp, 0x31 : jxz, 0x32 : jyz,
     0x01 : lda, 0x02 : sta, 0x03 : ada, 0x04 : sba,
     0x11 : ldx, 0x12 : stx, 0x13 : adx, 0x14 : sbx,
     0x21 : ldy, 0x22 : sty, 0x23 : ady, 0x24 : sby,
