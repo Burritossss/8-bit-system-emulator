@@ -176,7 +176,7 @@ def rsr(cpu:CPU, memory:Memory):
     cpu.pc = address
 
 
-# Create OPCODE table for the CPU
+# OPCODE table for the CPU
 OPCODE_TABLE:dict[int, Callable[[CPU, Memory], None]] = {
     0x00 : nop, 0x30 : jmp, 0x31 : jxz, 0x32 : jyz, 0x33 : jsr, 0x34 : rsr,
     0x01 : lda, 0x02 : sta, 0x03 : ada, 0x04 : sba, 0x05 : psa, 0x06 : pla,

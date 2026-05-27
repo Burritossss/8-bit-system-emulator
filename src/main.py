@@ -60,20 +60,20 @@ def app(stdscr:curses.window):
         # Key Handling =============================================================
         k = stdscr.getch() # Get key presses
 
-        if k == ord('s'): # Check if S is pressed, if so, step to the next instruction
+        if k == ord('s'): # Check if S is pressed, if so step to the next instruction
             if cpu.rom_loaded:
                 cpu.fetch_decode_execute()
             else:
                 msg = 'ROM is not loaded! Please load a ROM first.'
                 msgtimer = 60
         
-        if k == ord('r'):
+        if k == ord('r'): # Check if R is pressed, if so run the CPU
             if cpu.paused and cpu.rom_loaded:
                 cpu.paused = False
             else:
                 cpu.paused = True
         
-        if k == ord('l'): # Check if L is pressed, if so, load a ROM
+        if k == ord('l'): # Check if L is pressed, if so load a ROM
             # Open the file picker
             file = openFilePicker()
             if file:
@@ -86,13 +86,14 @@ def app(stdscr:curses.window):
                     msg = f'Failed to load ROM. Reason: {e}'
                     msgtimer = 240
 
-        if k == ord('q'): # Check if Q is pressed, if so, exit the program
+        if k == ord('q'): # Check if Q is pressed, if so exit the Emulator
             break
         
         # Drawing ====================================================================
         controls.erase() # Clear the controls screen to prevent the previous things being shown
         menu.erase() # Clear the screen
 
+        # Clear the bottom line
         stdscr.move(curses.LINES - 1, 0)
         stdscr.clrtoeol()
         
