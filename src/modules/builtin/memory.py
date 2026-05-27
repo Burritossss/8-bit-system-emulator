@@ -10,8 +10,10 @@ class Memory:
         self.memory = bytearray(size)
         #print(f'Memory initilized with size {size/1024} KB')
     
-    def write(self, address:int, value:int):
+    def write(self, address:int, value:int, force:bool=True):
         '''Writes to a value in memory'''
+        if address > 0x7000 and not force:
+            raise PermissionError(f'Unable to write to {address:#06x}. Access Denied.')
         self.memory[address] = value & 0xFF
         #print(f'Wrote {value & 0xFF} to {address:#4x}')
         #print(self.memory[address])
@@ -24,5 +26,5 @@ class Memory:
     def loadROM(self, bytes:bytes):
         '''Loads the program ROM'''
         for i, byte in enumerate(bytes):
-            self.write(0x9000 + i, byte)
-        self.write(0xFFFF, 0x90)
+            self.write(0x7000 + i, byte)
+        self.write(0xFFFF, 0x70)

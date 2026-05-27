@@ -4,9 +4,9 @@ Memory Map
   - 0x0000 - 0x00FF : Stack
   - 0x0100 - 0x5FFF : RAM
 - 0x6000 - 0x6401   : Storage
-  - 0x6000 - 0x6400 : 1024 bytes * bank
-  - 0x6001          : Bank select (64 bank loops after 64)
-- 0x6402 - 0x6FFF   : Unused
+  - 0x6000          : Bank select (64 bank loops after 64)
+  - 0x6001 - 0x6400 : 1024 bytes * bank
+- 0x6401 - 0x6FFF   : Unused
 - 0x7000 - 0xFFFD   : ROM
 - 0xFFFE - 0xFFFF   : Reset Vector
 
@@ -21,6 +21,9 @@ Instructions
     - Adds next memory cell to A register
   - 0x04 : SBA
     - Subtracts next memory cell from A register
+  - 0x05 : PSA
+    - Pushes A register to stack
+  - 0x06 : PLA
 - X Register Manipulation
   - 0x11 : LDX
     - Load X register with next value in memory

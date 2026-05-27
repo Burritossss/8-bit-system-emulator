@@ -51,6 +51,6 @@ class CPU:
         if self.ir in OPCODE_TABLE:
             OPCODE_TABLE[self.ir](self, self.memory)
         else:
-            pass #print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
+            pass#print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
 
     

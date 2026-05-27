@@ -50,6 +50,12 @@ def psa(cpu:CPU, memory:Memory):
     memory.write(cpu.sp, cpu.a)
     cpu.sp = (cpu.sp - 1) & 0xFF
 
+
+def pla(cpu:CPU, memory:Memory):
+    '''Pulls from stack and sets it to the A register'''
+    cpu.a = memory.read(cpu.sp)
+    cpu.sp = (cpu.sp + 1) % 0xFF
+
 # X Register Manipulation
 
 def ldx(cpu:CPU, memory:Memory):
@@ -75,10 +81,16 @@ def sbx(cpu:CPU, memory:Memory):
     cpu.x = (cpu.x - memory.read(cpu.pc)) & 0xFF
     cpu.pc = (cpu.pc + 1) & 0xFFFF
 
-def pxa(cpu:CPU, memory:Memory):
+def psx(cpu:CPU, memory:Memory):
     '''Pushes the X register to stack'''
     memory.write(cpu.sp, cpu.x)
     cpu.sp = (cpu.sp - 1) & 0xFF
+
+
+def plx(cpu:CPU, memory:Memory):
+    '''Pulls from stack and sets it to the X register'''
+    cpu.x = memory.read(cpu.sp)
+    cpu.sp = (cpu.sp + 1) % 0xFF
 
 # Y Register Manipulation
 
@@ -105,10 +117,16 @@ def sby(cpu:CPU, memory:Memory):
     cpu.y = (cpu.y - memory.read(cpu.pc)) & 0xFF
     cpu.pc = (cpu.pc + 1) & 0xFFFF
 
-def pya(cpu:CPU, memory:Memory):
+def psy(cpu:CPU, memory:Memory):
     '''Pushes the Y register to stack'''
     memory.write(cpu.sp, cpu.y)
     cpu.sp = (cpu.sp - 1) & 0xFF
+
+
+def ply(cpu:CPU, memory:Memory):
+    '''Pulls from stack and sets it to the Y register'''
+    cpu.y = memory.read(cpu.sp)
+    cpu.sp = (cpu.sp + 1) % 0xFF
 
 # Flow Control
 
@@ -161,7 +179,7 @@ def rsr(cpu:CPU, memory:Memory):
 # Create OPCODE table for the CPU
 OPCODE_TABLE:dict[int, Callable[[CPU, Memory], None]] = {
     0x00 : nop, 0x30 : jmp, 0x31 : jxz, 0x32 : jyz, 0x33 : jsr, 0x34 : rsr,
-    0x01 : lda, 0x02 : sta, 0x03 : ada, 0x04 : sba,
-    0x11 : ldx, 0x12 : stx, 0x13 : adx, 0x14 : sbx,
-    0x21 : ldy, 0x22 : sty, 0x23 : ady, 0x24 : sby,
+    0x01 : lda, 0x02 : sta, 0x03 : ada, 0x04 : sba, 0x05 : psa, 0x06 : pla,
+    0x11 : ldx, 0x12 : stx, 0x13 : adx, 0x14 : sbx, 0x15 : psx, 0x16 : plx,
+    0x21 : ldy, 0x22 : sty, 0x23 : ady, 0x24 : sby, 0x25 : psy, 0x26 : ply,
 }
