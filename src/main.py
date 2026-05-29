@@ -1,9 +1,20 @@
 # Imports
 from __future__ import annotations
-import curses
-from curses import wrapper
 import time
 import sys
+# Check if curses is installed, if not, user is most likely running windows and we should let them know that they need windows-curses
+try:
+    import curses
+    from curses import wrapper
+except ImportError:
+    print("ERR: Curses cannot be found!\n"
+    "Please either launch with --debug flag or install Curses!")
+    print('Possible fix:')
+    if sys.platform.startswith("win"):
+        print('\tpip install windows-curses')
+    else:
+        print('\tYour Python environment may have an issue. Please ensure Curses is installed in your environment.')
+    sys.exit(1)
 # Import tkinter for file browser
 import tkinter as tk
 from tkinter import filedialog
@@ -71,10 +82,14 @@ def app(stdscr:curses.window):
                 msgtimer = 60
         
         if k == ord('r'): # Check if R is pressed, if so run the CPU
-            if cpu.paused and cpu.rom_loaded:
-                cpu.paused = False
+            if cpu.rom_loaded:
+                if cpu.paused:
+                    cpu.paused = False
+                else:
+                    cpu.paused = True
             else:
-                cpu.paused = True
+                msg = 'ROM is not loaded! Please load a ROM first.'
+                msgtimer = 60
         
         if k == ord('l'): # Check if L is pressed, if so load a ROM
             # Open the file picker
@@ -133,8 +148,8 @@ def app(stdscr:curses.window):
 
         # Draw messages
         if msgtimer > 0:
-            msgtimer -= 1
             stdscr.addstr(curses.LINES-1, 0, msg)
+            msgtimer -= 1
         
         executiontime = time.perf_counter() - frame_start
         sleep = TARGETDELTATIME - executiontime
@@ -160,7 +175,9 @@ def debuggerapp():
     from modules.builtin.instructions import OPCODE_TABLE
     memory = Memory(debugging=True) # Create the memory with Debugging on
     cpu = CPU(True) # Create the CPU with debugging on
-    file = openFilePicker()
+    file = ''
+    while not file:
+        file = openFilePicker()
     if file:
         try:
             with open(file, 'rb') as bytes:
@@ -182,7 +199,14 @@ def debuggerapp():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 1 and sys.argv[1] == '--help':
+        print(
+        "Usage:"
+        "\tpython3 main.py [options]\n"
+        "Options:\n"
+        "\t--help\t\tDisplays this message\n"
+        "\t--debug\t\tSwitches to debugger mode")
+    if len(sys.argv) > 1 and sys.argv[1] == '--debug':
         debuggerapp()
     else:
         wrapper(app)
