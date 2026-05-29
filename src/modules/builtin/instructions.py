@@ -139,7 +139,7 @@ def jmp(cpu:CPU, memory:Memory):
 def jxz(cpu:CPU, memory:Memory):
     '''Jumps if X register is zero'''
     address = HelperFuncs.pullAddress(memory, cpu)
-    if cpu.x != 0:
+    if cpu.x == 0:
         cpu.pc = address
     else:
         pass
@@ -148,7 +148,7 @@ def jxz(cpu:CPU, memory:Memory):
 def jyz(cpu:CPU, memory:Memory):
     '''Jumps if Y register is zero'''
     address = HelperFuncs.pullAddress(memory, cpu)
-    if cpu.y != 0:
+    if cpu.y == 0:
         cpu.pc = address
     else:
         pass

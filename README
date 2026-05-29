@@ -14,53 +14,53 @@ Instructions
 ---
 - A Register Manipulation
   - 0x01 : LDA
-    - Load A register with next value in memory
+    - Load A register with operand
   - 0x02 : STA
-    - Stores A register at location specified from next two memory cells
+    - Stores A register at location specified from two operands
   - 0x03 : ADA
-    - Adds next memory cell to A register
+    - Adds operand to A register
   - 0x04 : SBA
-    - Subtracts next memory cell from A register
+    - Subtracts operand from A register
   - 0x05 : PSA
     - Pushes A register to stack
   - 0x06 : PLA
     - Pulls from the stack to the A register
 - X Register Manipulation
   - 0x11 : LDX
-    - Load X register with next value in memory
+    - Load X register with operand
   - 0x12 : STX
-    - Stores X register at location specified from next two memory cells
+    - Stores X register at location specified from two operands
   - 0x13 : ADX
-    - Adds next memory cell to X register
+    - Adds operand to X register
   - 0x14 : SBX
-    - Subtracts next memory cell from X register
+    - Subtracts operand from X register
   - 0x15 : PSX
     - Pushes X register to stack
   - 0x16 : PLX
     - Pulls from the stack to the X register
 - Y Register Manipulation
   - 0x21 : LDY
-    - Load Y register with next value in memory
+    - Load Y register with operand
   - 0x22 : STY
-    - Stores Y register at location specified from next two memory cells
+    - Stores Y register at location specified from two operands
   - 0x23 : ADY
-    - Adds next memory cell to Y register
+    - Adds operand to Y register
   - 0x24 : SBY
-    - Subtracts next memory cell from Y register
+    - Subtracts operand from Y register
   - 0x25 : PSY
     - Pushes Y register to stack
-  - 0x.26 : PLY
+  - 0x26 : PLY
     - Pulls from the stack to the Y register
 - Flow Control
   - 0x00 : NOP
     - No Operation
   - 0x30 : JMP
-    - Jumps the PC to the location specified from next two memory cells
+    - Jumps the PC to the location specified by two operands
   - 0x31 : JXZ
     - Similar to the JMP instruction except it only jumps when X is zero
   - 0x32 : JYZ
     - Similar to the JMP instruction except it only jumps when Y is zero
   - 0x33 : JSR
-    - Pushes PC to stack and jumps to a subroutine 
+    - Pushes PC to stack and jumps to subroutine 
   - 0x34 : RSR
     - Pops PC from stack and returns from subroutine

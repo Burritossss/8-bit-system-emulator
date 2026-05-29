@@ -1,12 +1,17 @@
-# Import curses
+# Imports
+from __future__ import annotations
 import curses
 from curses import wrapper
+import time
+import sys
 # Import tkinter for file browser
 import tkinter as tk
 from tkinter import filedialog
-import time
-from modules.builtin import CPU, Memory # Import our builtins
-from settings import * # Import settings
+# Import our builtins
+from modules.builtin import CPU, Memory
+# Import settings
+from settings import *
+
 
 def openFilePicker():
     '''Opens a file picker to let you open a ROM'''
@@ -53,16 +58,14 @@ def app(stdscr:curses.window):
         # CPU handling =============================================================
         if not cpu.paused:
             for _ in range(CYCLESPERFRAME): # Run at 60 fps
-                cpu.fetch_decode_execute()
-            msg = "CPU is running"
-            msgtimer = 1
+                msgtimer, msg = cpu.fetch_decode_execute()
 
         # Key Handling =============================================================
         k = stdscr.getch() # Get key presses
 
         if k == ord('s'): # Check if S is pressed, if so step to the next instruction
             if cpu.rom_loaded:
-                cpu.fetch_decode_execute()
+                msgtimer, msg = cpu.fetch_decode_execute()
             else:
                 msg = 'ROM is not loaded! Please load a ROM first.'
                 msgtimer = 60
@@ -87,6 +90,7 @@ def app(stdscr:curses.window):
                     msgtimer = 240
 
         if k == ord('q'): # Check if Q is pressed, if so exit the Emulator
+            memory.close()
             break
         
         # Drawing ====================================================================
@@ -152,6 +156,33 @@ def app(stdscr:curses.window):
         controls.noutrefresh()
         curses.doupdate()
 
+def debuggerapp():
+    from modules.builtin.instructions import OPCODE_TABLE
+    memory = Memory(debugging=True) # Create the memory with Debugging on
+    cpu = CPU(True) # Create the CPU with debugging on
+    file = openFilePicker()
+    if file:
+        try:
+            with open(file, 'rb') as bytes:
+                print('Reading ROM')
+                byte_data = bytes.read()
+                print('ROM read, writing')
+                memory.loadROM(byte_data)
+                cpu.reset(memory)
+        except Exception as e:
+            quit(f'Failed to load ROM. Reason: {e}')
+    
+    while True:
+        cpu.fetch_decode_execute()
+        print(f'A: {cpu.a:#04x}, X: {cpu.x:#04x}, Y: {cpu.y:#04x}, PC: {cpu.pc:#06x} INSTRUCTION: {OPCODE_TABLE[cpu.ir].__name__}')
+        if input() == 'q':
+            break
+
+    memory.close()
+
 
 if __name__ == '__main__':
-    wrapper(app)
+    if len(sys.argv) > 1:
+        debuggerapp()
+    else:
+        wrapper(app)

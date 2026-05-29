@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from .memory import Memory
 
 class CPU:
-    def __init__(self):
+    def __init__(self, debugging:bool=False):
         '''Create the CPU object and create the variables'''
         self.memory:Memory
 
@@ -24,6 +24,7 @@ class CPU:
 
         self.paused = True # CPU starts paused
         self.rom_loaded = False # CPU starts without a ROM
+        self.debugging = debugging # Set debugging mode
     
     def reset(self, memory:Memory):
         '''Resets the CPU'''
@@ -39,18 +40,24 @@ class CPU:
 
         # Reset the PC
         self.pc = ((memory.read(0xFFFF) << 8) | memory.read(0xFFFE))
-        #print(f'PC reset to {hex(self.pc)}')
+        if self.debugging:
+            print(f'PC reset to {hex(self.pc)}')
+        
         self.rom_loaded = True # ROM has been loaded
 
     
-    def fetch_decode_execute(self):
+    def fetch_decode_execute(self) -> tuple[int, str]: #type: ignore
         '''Fetch, decode, and execute an instruction'''
         self.ir = self.memory.read(self.pc)
         self.pc = (self.pc + 1) & 0xFFFF
 
         if self.ir in OPCODE_TABLE:
             OPCODE_TABLE[self.ir](self, self.memory)
+            return (1, 'Executing...')
         else:
-            pass#print(f'ERROR: Instruction {self.ir:#2x} at {self.pc:#4x}')
-
+            if self.debugging:
+                print(f'ERR: UNKNOWN {self.ir:#02x} @ {self.pc:#04x}')
+            else:
+                self.paused = True
+                return (120, f'ERR: UNKNOWN {self.ir:#02x} @ {self.pc:#04x}')
     
