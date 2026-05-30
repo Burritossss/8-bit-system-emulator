@@ -19,7 +19,7 @@ except ImportError:
 import tkinter as tk
 from tkinter import filedialog
 # Import our builtins
-from modules.builtin import CPU, Memory
+from core import CPU, Memory
 # Import settings
 from settings import *
 
@@ -172,7 +172,7 @@ def app(stdscr:curses.window):
         curses.doupdate()
 
 def debuggerapp():
-    from modules.builtin.instructions import OPCODE_TABLE
+    from core.instructions import OPCODE_TABLE
     memory = Memory(debugging=True) # Create the memory with Debugging on
     cpu = CPU(True) # Create the CPU with debugging on
     file = ''

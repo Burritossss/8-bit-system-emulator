@@ -1,5 +1,5 @@
 '''
-The default CPU class that holds all CPU variables, methods, instructions, and etc.
+CPU Module
 '''
 from __future__ import annotations
 from typing import TYPE_CHECKING
@@ -59,8 +59,8 @@ class CPU:
             return (1, 'Executing...')
         else:
             if self.debugging:
-                print(f'ERR: UNKNOWN {self.ir:#02x} @ {self.pc:#04x}')
+                print(f'ERR: UNKNOWN {self.ir:#02x} @ {self.pc-1:#04x}')
             else:
                 self.paused = True
-                return (120, f'ERR: UNKNOWN {self.ir:#02x} @ {self.pc:#04x}')
+                return (120, f'ERR: UNKNOWN {self.ir:#02x} @ {self.pc-1:#04x}')
     

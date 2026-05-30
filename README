@@ -6,7 +6,9 @@ Memory Map
 - 0x6000 - 0x6401   : Storage
   - 0x6000          : Bank select (64 bank loops after 64)
   - 0x6001 - 0x6400 : 1024 bytes * bank
-- 0x6401 - 0x6FFF   : Unused
+- 0x6401 - 0x60FF   : 16*16 Screen Character Buffer
+- 0x6100            : Keyboard
+- 0x6101 - 0x6FFF   : Unused
 - 0x7000 - 0xFFFD   : ROM
 - 0xFFFE - 0xFFFF   : Reset Vector
 
