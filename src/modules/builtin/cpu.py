@@ -25,6 +25,9 @@ class CPU:
         self.paused = True # CPU starts paused
         self.rom_loaded = False # CPU starts without a ROM
         self.debugging = debugging # Set debugging mode
+
+        # Define flag masks
+        FL_ZERO = 0b00000001
     
     def reset(self, memory:Memory):
         '''Resets the CPU'''

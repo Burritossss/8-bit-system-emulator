@@ -13,43 +13,49 @@ Memory Map
 Instructions
 ---
 - A Register Manipulation
-  - 0x01 : LDA
+  - 0x01 : LDA (immediate)
     - Load A register with operand
-  - 0x02 : STA
+  - 0x02 : LDA (address)
+    - Load A register from address specified from two operands
+  - 0x03 : STA
     - Stores A register at location specified from two operands
-  - 0x03 : ADA
+  - 0x04 : ADA
     - Adds operand to A register
-  - 0x04 : SBA
+  - 0x05 : SBA
     - Subtracts operand from A register
-  - 0x05 : PSA
+  - 0x06 : PSA
     - Pushes A register to stack
-  - 0x06 : PLA
+  - 0x07 : PLA
     - Pulls from the stack to the A register
 - X Register Manipulation
-  - 0x11 : LDX
+  - 0x11 : LDX (immediate)
     - Load X register with operand
-  - 0x12 : STX
+  - 0x12 : LDX (address)
+    - Load X register from address specified from two operands
+  - 0x13 : STX
     - Stores X register at location specified from two operands
-  - 0x13 : ADX
+  - 0x14 : ADX
     - Adds operand to X register
-  - 0x14 : SBX
+  - 0x15 : SBX
     - Subtracts operand from X register
-  - 0x15 : PSX
+  - 0x16 : PSX
     - Pushes X register to stack
-  - 0x16 : PLX
+  - 0x17 : PLX
     - Pulls from the stack to the X register
 - Y Register Manipulation
-  - 0x21 : LDY
+  - 0x21 : LDY (immediate)
     - Load Y register with operand
-  - 0x22 : STY
+  - 0x22 : LDY (address)
+    - Load Y register from address specified from two operands
+  - 0x23 : STY
     - Stores Y register at location specified from two operands
-  - 0x23 : ADY
+  - 0x24 : ADY
     - Adds operand to Y register
-  - 0x24 : SBY
+  - 0x25 : SBY
     - Subtracts operand from Y register
-  - 0x25 : PSY
+  - 0x26 : PSY
     - Pushes Y register to stack
-  - 0x26 : PLY
+  - 0x27 : PLY
     - Pulls from the stack to the Y register
 - Flow Control
   - 0x00 : NOP

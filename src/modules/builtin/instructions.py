@@ -16,15 +16,18 @@ class HelperFuncs:
         cpu.pc = (cpu.pc + 1) & 0xFFFF
         return ((high << 8) | low) & 0xFFFF
 
-def nop(cpu:CPU, memory:Memory):
-    pass
-
 # A Register Manipulation
 
-def lda(cpu:CPU, memory:Memory):
-    '''Load to A register'''
+def lda_i(cpu:CPU, memory:Memory):
+    '''Immediate load to A register'''
     cpu.a = memory.read(cpu.pc) & 0xFF
     cpu.pc = (cpu.pc + 1) % 0xFFFF
+
+
+def lda_a(cpu:CPU, memory:Memory):
+    '''Loads A register memory'''
+    address = HelperFuncs.pullAddress(memory, cpu)
+    cpu.a = memory.read(address)
 
 
 def sta(cpu:CPU, memory:Memory):
@@ -58,10 +61,16 @@ def pla(cpu:CPU, memory:Memory):
 
 # X Register Manipulation
 
-def ldx(cpu:CPU, memory:Memory):
-    '''Load to X register'''
+def ldx_i(cpu:CPU, memory:Memory):
+    '''Immediate load to X register'''
     cpu.x = memory.read(cpu.pc) & 0xFF
     cpu.pc = (cpu.pc + 1) & 0xFFFF
+
+
+def ldx_a(cpu:CPU, memory:Memory):
+    '''Loads X register memory'''
+    address = HelperFuncs.pullAddress(memory, cpu)
+    cpu.x = memory.read(address)
 
 
 def stx(cpu:CPU, memory:Memory):
@@ -94,11 +103,16 @@ def plx(cpu:CPU, memory:Memory):
 
 # Y Register Manipulation
 
-def ldy(cpu:CPU, memory:Memory):
-    '''Load to Y register'''
+def ldy_i(cpu:CPU, memory:Memory):
+    '''Immediate load to Y register'''
     cpu.y = memory.read(cpu.pc) & 0xFF
     cpu.pc = (cpu.pc + 1) & 0xFFFF
 
+
+def ldy_a(cpu:CPU, memory:Memory):
+    '''Loads Y register memory'''
+    address = HelperFuncs.pullAddress(memory, cpu)
+    cpu.y = memory.read(address)
 
 def sty(cpu:CPU, memory:Memory):
     '''Store Y register'''
@@ -129,6 +143,9 @@ def ply(cpu:CPU, memory:Memory):
     cpu.sp = (cpu.sp + 1) % 0xFF
 
 # Flow Control
+
+def nop(cpu:CPU, memory:Memory):
+    pass
 
 def jmp(cpu:CPU, memory:Memory):
     '''Jump to address'''
@@ -179,7 +196,7 @@ def rsr(cpu:CPU, memory:Memory):
 # OPCODE table for the CPU
 OPCODE_TABLE:dict[int, Callable[[CPU, Memory], None]] = {
     0x00 : nop, 0x30 : jmp, 0x31 : jxz, 0x32 : jyz, 0x33 : jsr, 0x34 : rsr,
-    0x01 : lda, 0x02 : sta, 0x03 : ada, 0x04 : sba, 0x05 : psa, 0x06 : pla,
-    0x11 : ldx, 0x12 : stx, 0x13 : adx, 0x14 : sbx, 0x15 : psx, 0x16 : plx,
-    0x21 : ldy, 0x22 : sty, 0x23 : ady, 0x24 : sby, 0x25 : psy, 0x26 : ply,
+    0x01 : lda_i, 0x02 : lda_a, 0x03 : sta, 0x04 : ada, 0x05 : sba, 0x06 : psa, 0x07 : pla,
+    0x11 : ldx_i, 0x12 : ldx_a, 0x13 : stx, 0x14 : adx, 0x15 : sbx, 0x16 : psx, 0x17 : plx,
+    0x21 : ldy_i, 0x22 : ldy_a, 0x23 : sty, 0x24 : ady, 0x25 : sby, 0x26 : psy, 0x27 : ply,
 }
