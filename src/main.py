@@ -2,6 +2,7 @@
 from __future__ import annotations
 import time
 import sys
+import importlib # Import lib for importing modules dynamically
 # Check if curses is installed, if not, user is most likely running windows and we should let them know that they need windows-curses
 try:
     import curses
@@ -13,7 +14,7 @@ except ImportError:
     if sys.platform.startswith("win"):
         print('\tpip install windows-curses')
     else:
-        print('\tYour Python environment may have an issue. Please ensure Curses is installed in your environment.')
+        print('\tEnsure Curses is installed in your python environment.')
     sys.exit(1)
 # Import tkinter for file browser
 import tkinter as tk
@@ -23,13 +24,55 @@ from core import CPU, Memory
 # Import settings
 from settings import *
 
+def loadModule(source:str, module_name:str|None=None): # type: ignore
+    '''Dynamically loads a module'''
+    if source.endswith('.py'):
+        spec = importlib.util.spec_from_file_location(module_name, source) # type: ignore
+        if spec is None or spec.loader is None: # type: ignore
+            raise ImportError()
+        module = importlib.util.module_from_spec(spec) # type: ignore
+        spec.loader.exec_module(module) # type: ignore
 
-def openFilePicker():
-    '''Opens a file picker to let you open a ROM'''
+        return module # type: ignore
+
+def pullMetaData(file:str):
+    '''Reads the metadata of a project file'''
+    metadata = {
+        'NAME':'Unknown',
+        'AUTH':'Unknown',
+        'VERS':'Unknown',
+        'DESC':'Unknown'
+    }
+
+    try:
+        with open(file, 'r', encoding='utf-8') as f:
+            for _ in range(4):
+                line = f.readline()
+                if not line:
+                    break
+
+                line = line.strip().lstrip('#').strip()
+
+                if ":" in line:
+                    key, value = line.split(":", 1)
+                    key = key.strip().upper()
+                    value = value.strip()
+
+                    if key in metadata:
+                        metadata[key] = value
+    
+    except Exception:
+        pass
+
+    return metadata
+
+
+def openFilePicker(file:list[tuple[str, str]]):
+    '''Opens a file picker to let you open a file'''
     root = tk.Tk()
     root.withdraw()
     root.attributes('-topmost', True) # type: ignore
-    rom_path = filedialog.askopenfilename(filetypes=[("Binary Files", '*.bin')])
+    rom_path = filedialog.askopenfilename(filetypes=file)
     root.destroy()
     return rom_path if rom_path else None
 
@@ -40,27 +83,30 @@ def app(stdscr:curses.window):
     curses.curs_set(0)
     stdscr.clear()
     stdscr.nodelay(True)
-    
-    # Pre-calculate values dealing with the windows
-    menu_width = int((curses.COLS * 0.75))
-    menu_title_x = int((menu_width / 2) - (len('Menu')/2))
-    controls_width = curses.COLS - menu_width
-    controls_title_x = int((controls_width / 2) - (len('Controls')/2)) # Minus the length of half the controls windows title
 
-    # Create the windows for the two sides of the screen
-    menu = curses.newwin(curses.LINES-2, menu_width, 1, 0) # Menu window
-    controls = curses.newwin(curses.LINES-2, curses.COLS - menu_width, 1, menu_width) # controls window
+    # Pre-calculate values dealing with the windows
+    menu_width:int = int((curses.COLS * 0.75))
+    menu_title_x:int = int((menu_width / 2) - (len('Menu')/2))
+    controls_width:int = curses.COLS - menu_width
+    controls_title_x:int = int((controls_width / 2) - (len('Controls')/2)) # Minus the length of half the controls windows title
+
+    # Create the windows
+    menu:curses.window = curses.newwin(curses.LINES-2, menu_width, 1, 0) # Menu window
+    controls:curses.window = curses.newwin(curses.LINES-2, curses.COLS - menu_width, 1, menu_width) # controls window
+    importmenu:curses.window = curses.newwin(curses.LINES, curses.COLS)
 
     # Menu Bar Buttons
-    buttons = ['[L]oad ROM', '[S]tep', '[R]un', '[Q]uit',]
+    buttons:list[str] = ['[L]oad ROM', '[S]tep', '[R]un', '[I]mport','[Q]uit',]
 
     # Message variables
     msg:str = ""
     msgtimer:int = 0
 
     # Create the Emulator components
-    memory = Memory()
-    cpu = CPU()
+    memory:Memory = Memory()
+    cpu:CPU = CPU()
+
+    loaded_modules = []
 
     # Infinite loop
     while True:
@@ -72,7 +118,7 @@ def app(stdscr:curses.window):
                 msgtimer, msg = cpu.fetch_decode_execute()
 
         # Key Handling =============================================================
-        k = stdscr.getch() # Get key presses
+        k:int = stdscr.getch() # Get key presses
 
         if k == ord('s'): # Check if S is pressed, if so step to the next instruction
             if cpu.rom_loaded:
@@ -80,7 +126,7 @@ def app(stdscr:curses.window):
             else:
                 msg = 'ROM is not loaded! Please load a ROM first.'
                 msgtimer = 60
-        
+
         if k == ord('r'): # Check if R is pressed, if so run the CPU
             if cpu.rom_loaded:
                 if cpu.paused:
@@ -91,9 +137,9 @@ def app(stdscr:curses.window):
                 msg = 'ROM is not loaded! Please load a ROM first.'
                 msgtimer = 60
         
-        if k == ord('l'): # Check if L is pressed, if so load a ROM
+        if k == ord('l'): # Check if L is pressed, if so load a ROMWebRTC Control
             # Open the file picker
-            file = openFilePicker()
+            file = openFilePicker([("Binary Files", '*.bin')])
             if file:
                 try:
                     with open(file, 'rb') as bytes:
@@ -103,6 +149,45 @@ def app(stdscr:curses.window):
                 except Exception as e:
                     msg = f'Failed to load ROM. Reason: {e}'
                     msgtimer = 240
+        
+        if k == ord('i'): # Check if I is pressed, if so open a file picker and load a .cpl file or a .py file.
+            file = openFilePicker([("Component", "*.py *.cpl")])
+            if file is not None:
+                # Clear the menu and add a border
+                importmenu.erase()
+                importmenu.border()
+                importmenu.noutrefresh()
+
+                # Get metadata of the file:
+                metadata = pullMetaData(file)
+
+                importmenu.addstr(1, 1, 'Information:')
+                importmenu.addstr(2, 1, f'Name: {metadata['NAME']}')
+                importmenu.addstr(3, 1, f'Author: {metadata['AUTH']}')
+                importmenu.addstr(4, 1, f'Version: {metadata['VERS']}')
+                importmenu.addstr(5, 1, f'Description: {metadata['DESC']}')
+
+                # Check if its a .py file
+                if file.endswith('.py'):
+                    # If it is, give a warning
+                    importmenu.addstr(7,1,'Warning! Loading external python modules allow external code execution. Only load .py modules you trust')
+                    importmenu.addstr(8,1,'Do you want to continue?')
+                    importmenu.addstr(9,1,'Y/n')
+                    y = 'Y'
+                else:
+                    # Else don't
+                    importmenu.addstr(7,1,'y/n')
+                    y = 'y'
+
+                curses.doupdate()
+                while True:
+                    k = importmenu.getch() 
+                    if k == ord(y) or ord('Y'):
+                        
+                    elif k == ord('n'):
+                        break
+            importmenu.erase()
+            importmenu.noutrefresh()
 
         if k == ord('q'): # Check if Q is pressed, if so exit the Emulator
             memory.close()
@@ -177,7 +262,7 @@ def debuggerapp():
     cpu = CPU(True) # Create the CPU with debugging on
     file = ''
     while not file:
-        file = openFilePicker()
+        file = openFilePicker([("Binary Files", '*.bin')])
     if file:
         try:
             with open(file, 'rb') as bytes:
@@ -206,6 +291,8 @@ if __name__ == '__main__':
         "Options:\n"
         "\t--help\t\tDisplays this message\n"
         "\t--debug\t\tSwitches to debugger mode")
+        sys.exit()
+    
     if len(sys.argv) > 1 and sys.argv[1] == '--debug':
         debuggerapp()
     else:

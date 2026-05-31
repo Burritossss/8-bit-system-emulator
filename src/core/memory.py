@@ -3,6 +3,7 @@ Memory Module
 '''
 from __future__ import annotations
 import os
+import pathlib
 
 class Memory:
     '''Memory class'''
@@ -15,7 +16,7 @@ class Memory:
 
         # Banked file setup
         self.bank = 0
-        banked_file_path = f'{os.curdir}/storage.bin'
+        banked_file_path = pathlib.Path(__file__).resolve().parent.parent.parent / "storage.bin"
 
         if not os.path.exists(banked_file_path):
             with open(banked_file_path, 'wb') as f: # Open the storage file
