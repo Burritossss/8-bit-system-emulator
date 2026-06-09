@@ -144,13 +144,7 @@ def app(stdscr:curses.window):
     while True:
         frame_start = time.perf_counter()
 
-        # Drawing ====================================================================
-        controls.erase() # Clear the controls screen to prevent the previous things being shown
-        menu.erase() # Clear the screen
-
-        # Clear the bottom line
-        stdscr.move(curses.LINES - 1, 0)
-        stdscr.clrtoeol()
+        menu.erase() # Clear the module menu
 
         # CPU handling =============================================================
         if not cpu.paused:
@@ -217,20 +211,18 @@ def app(stdscr:curses.window):
                 # Check if its a .py file
                 if file.endswith('.py'):
                     # If it is, give a warning
-                    importmenu.addstr(7,1,'Warning! Loading external python modules allow external code execution. Only load .py modules you trust')
+                    importmenu.addstr(7,1,'Warning! Loading python hardware modules allows external code execution. Only load .py modules you trust')
                     importmenu.addstr(8,1,'Do you want to continue?')
                     importmenu.addstr(9,1,'Y/n')
-                    y = 'Y'
                 else:
                     # Else don't
-                    importmenu.addstr(7,1,'Sorry, currently only Python modules are supported at the moment. This is mainly for example purposes')
+                    importmenu.addstr(7,1,'Sorry, currently only Python xmodules are supported at the moment. This is mainly for example purposes')
                     importmenu.addstr(8,1,'y/n')
-                    y = 'y'
 
                 curses.doupdate()
                 while True:
                     k = importmenu.getch() 
-                    if k == ord(y) or ord('Y'):
+                    if k == ord('Y'):
                         # Load the module
                         hardware = loadModule(file, memory)
                         if isinstance(hardware, tuple):
@@ -238,6 +230,10 @@ def app(stdscr:curses.window):
                             msgtimer = hardware[1]
                             break
                         else:
+                            if metadata['NAME'][:4] in tabs:
+                                msg = 'Module is already loarded!'
+                                msgtimer = 240
+                                break
                             loaded_modules.append(hardware)
                             tabs.append(f"{metadata['NAME'][:4]}")
                             selected_tab = f"{metadata['NAME'][:4]}"
@@ -252,8 +248,13 @@ def app(stdscr:curses.window):
         if k == ord('q'): # Check if Q is pressed, if so exit the Emulator
             memory.close()
             break
-        
 
+        # Drawing ====================================================================
+        controls.erase() # Clear the controls screen to prevent the previous things being shown
+
+        # Clear the bottom line
+        stdscr.move(curses.LINES - 1, 0)
+        stdscr.clrtoeol()
         # Draw the borders of the windows
         menu.border()
         controls.border()
@@ -269,7 +270,6 @@ def app(stdscr:curses.window):
         for tab in tabs:
             menu.addstr(0, total_x, tab, curses.A_STANDOUT)
             total_x += len(tab)+1
-
 
         # Setup the titles
         controls.addstr(1, controls_title_x, 'Controls')

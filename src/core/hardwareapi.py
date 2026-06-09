@@ -20,7 +20,7 @@ class hardwareAPI(ABC):
         '''Runs when the module is loaded'''
         pass
     
-    def tick(self):
+    def tick(self, canvas: Canvas):
         '''Runs every tick of the emulator'''
         pass
 
@@ -37,4 +37,6 @@ class Canvas:
         self.__window = window
     
     def draw_text(self, x:int, y:int, content:Any):
-        self.__window.addstr(x, y, content)
+        if y < 0:
+            return
+        self.__window.addstr(x+2, y+2, str(content))
