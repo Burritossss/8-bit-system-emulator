@@ -19,6 +19,6 @@ class HardwareMod(API.hardwareAPI):
         x = 0
         y = 0
         for i in range(16*16): # 256
-            x = int(i / 16)
-            y = i % 16
+            y = int(i / 16)
+            x = i % 16
             canvas.draw_text(x, y, self.unicodetable.get(self.readMemory(0x6401+i)))

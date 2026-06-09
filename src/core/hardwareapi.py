@@ -39,4 +39,4 @@ class Canvas:
     def draw_text(self, x:int, y:int, content:Any):
         if y < 0:
             return
-        self.__window.addstr(x+2, y+2, str(content))
+        self.__window.addstr(y+2, x+2, str(content))
