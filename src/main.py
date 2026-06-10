@@ -3,8 +3,6 @@ from __future__ import annotations
 import time
 import sys, os
 import importlib.util
-import sys, os
-import importlib.util
 # Check if curses is installed, if not, user is most likely running windows and we should let them know that they need windows-curses
 try:
     import curses
@@ -29,20 +27,7 @@ except ImportError:
     sys.exit(1)
 
 #  Import our builtins
-
-# Try to import tkinter for file browsing. Else error
-try:
-    import tkinter as tk
-    from tkinter import filedialog
-except ImportError:
-    print('ERR: Tkinter cannot be found!\n'
-    'Please ensure your python environment has Tkinter!')
-    sys.exit(1)
-
-#  Import our builtins
 from core import CPU, Memory
-# Import the API
-from core import Canvas
 # Import the API
 from core import Canvas
 # Import settings
@@ -50,37 +35,12 @@ from settings import *
 
 
 def loadModule(source:str, memory:Memory) -> tuple(str, int): # type: ignore
-
-def loadModule(source:str, memory:Memory) -> tuple(str, int): # type: ignore
     '''Dynamically loads a module'''
     if source.endswith('.py'):
         name = os.path.splitext(os.path.basename(source))[0] # Get the name
         spec = importlib.util.spec_from_file_location(name, source) 
         if spec is None or spec.loader is None: 
-        name = os.path.splitext(os.path.basename(source))[0] # Get the name
-        spec = importlib.util.spec_from_file_location(name, source) 
-        if spec is None or spec.loader is None: 
             raise ImportError()
-        module = importlib.util.module_from_spec(spec) 
-
-        try:
-            spec.loader.exec_module(module) # type: ignore
-        except Exception as e:
-            return (f"Script Error: {e}", 240)
-        
-        # Check if the main class is there
-        try:
-            hardware = getattr(module, "HardwareMod")
-
-            hardware_inst = hardware(memory)
-
-            hardware_inst.setup()
-            
-            return hardware_inst # type: ignore
-        
-        except Exception as e:
-            return (f'Unable to load Hardware module: {e}', 240)
-
         module = importlib.util.module_from_spec(spec) 
 
         try:
@@ -162,14 +122,9 @@ def app(stdscr:curses.window):
     controls:curses.window = curses.newwin(curses.LINES-2, curses.COLS - menu_width, 1, menu_width) # controls window
     importmenu:curses.window = curses.newwin(curses.LINES, curses.COLS)
     canvas = Canvas(menu)
-    canvas = Canvas(menu)
 
     # Menu Bar Buttons
     buttons:list[str] = ['[L]oad ROM', '[S]tep', '[R]un', '[I]mport','[Q]uit',]
-
-    # Menu Tabs
-    tabs:list[str] = []
-    selected_tab = ''
 
     # Menu Tabs
     tabs:list[str] = []
@@ -195,13 +150,6 @@ def app(stdscr:curses.window):
         if not cpu.paused:
             for _ in range(CYCLESPERFRAME): # Run at 60 fps
                 msgtimer, msg = cpu.fetch_decode_execute()
-
-                # Step cpu tick in modules
-                for module in loaded_modules:
-                    module.cpu_tick()
-        
-        for module in loaded_modules:
-            module.tick(canvas)
 
                 # Step cpu tick in modules
                 for module in loaded_modules:
@@ -283,7 +231,7 @@ def app(stdscr:curses.window):
                             break
                         else:
                             if metadata['NAME'][:4] in tabs:
-                                msg = 'Module is already loarded!'
+                                msg = 'Module is already loaded!'
                                 msgtimer = 240
                                 break
                             loaded_modules.append(hardware)
@@ -374,8 +322,6 @@ def debuggerapp():
     file = ''
 
     file = openFilePicker([("Binary Files", '*.bin')])
-
-    file = openFilePicker([("Binary Files", '*.bin')])
     if file:
         try:
             with open(file, 'rb') as bytes:
@@ -386,8 +332,6 @@ def debuggerapp():
                 cpu.reset(memory)
         except Exception as e:
             quit(f'Failed to load ROM. Reason: {e}')
-    else:
-        sys.exit(0)
     else:
         sys.exit(0)
     
