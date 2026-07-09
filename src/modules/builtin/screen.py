@@ -21,4 +21,7 @@ class HardwareMod(API.hardwareAPI):
         for i in range(16*16): # 256
             y = int(i / 16)
             x = i % 16
-            canvas.draw_text(x, y, self.unicodetable.get(self.readMemory(0x6401+i)))
+            try:
+                canvas.draw_text(x, y, self.unicodetable[self.readMemory(0x6401+i)])
+            except:
+                pass
