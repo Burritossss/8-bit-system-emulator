@@ -3,7 +3,6 @@ from __future__ import annotations
 import time
 import sys, os
 import importlib.util # Import importlib.util for importing dynamically
-import importlib.abc
 from typing import Any
 # Check if curses is installed, if not, user is most likely running windows and we should let them know that they need windows-curses
 try:
@@ -179,102 +178,106 @@ def app(stdscr:curses.window):
 
         # Key Handling =============================================================
         k:int = stdscr.getch() # Get key presses
-        msg = f'key: {k}'
-        msgtimer = 120
+        #msg = f'key: {k}'
+        #msgtimer = 120
 
         if k != -1:
             if k == curses.KEY_MOUSE:
-                _, x, y, _, _ = curses.getmouse()
-                if y == 0:
-                    if (1 <= x <= 3): # Check if pressing the X button, if so quit
-                        memory.close()
-                        break
+                try:
+                    _, x, y, _, _ = curses.getmouse()
 
-                    if (5 <= x <= 7): # Check if pressing the Load button, if so, load a rom 
-                        # Open the file picker
-                        file = openFilePicker([("Binary Files", '*.bin')])
-                        if file: # Check if the file isn't None
-                            try: 
-                                with open(file, 'rb') as bytes:
-                                    byte_data = bytes.read()
-                                    memory.loadROM(byte_data)
-                                    cpu.reset(memory)
-                            except Exception as e:
-                                msg = f'Failed to load ROM. Reason: {e}'
-                                msgtimer = 240
-                    
-                    if (9 <= x <= 11): # Check if pressing the import button, if so import a module
-                        file = openFilePicker([("Component", "*.py *.cpl")])
-                        if file is not None:
-                            # Clear the menu and add a border
-                            import_menu.erase()
-                            import_menu.border()
-                            import_menu.noutrefresh()
+                    if y == 0:
+                        if (1 <= x <= 3): # Check if pressing the X button, if so quit
+                            memory.close()
+                            break
 
-                            # Get metadata of the file:
-                            metadata = pullMetaData(file)
+                        if (5 <= x <= 7): # Check if pressing the Load button, if so, load a rom 
+                            # Open the file picker
+                            file = openFilePicker([("Binary Files", '*.bin')])
+                            if file: # Check if the file isn't None
+                                try: 
+                                    with open(file, 'rb') as bytes:
+                                        byte_data = bytes.read()
+                                        memory.loadROM(byte_data)
+                                        cpu.reset(memory)
+                                except Exception as e:
+                                    msg = f'Failed to load ROM. Reason: {e}'
+                                    msgtimer = 240
+                        
+                        if (9 <= x <= 11): # Check if pressing the import button, if so import a module
+                            file = openFilePicker([("Component", "*.py *.cpl")])
+                            if file is not None:
+                                # Clear the menu and add a border
+                                import_menu.erase()
+                                import_menu.border()
+                                import_menu.noutrefresh()
 
-                            import_menu.addstr(1, 1, 'Information:')
-                            import_menu.addstr(2, 1, f'Name: {metadata['NAME']}')
-                            import_menu.addstr(3, 1, f'Author: {metadata['AUTH']}')
-                            import_menu.addstr(4, 1, f'Version: {metadata['VERS']}')
-                            import_menu.addstr(5, 1, f'Description: {metadata['DESC']}')
+                                # Get metadata of the file:
+                                metadata = pullMetaData(file)
 
-                            # Check if its a .py file
-                            if file.endswith('.py'):
-                                # If it is, give a warning
-                                import_menu.addstr(7,1,'Warning! Loading python hardware modules allows external code execution. Only load .py modules you trust')
-                                import_menu.addstr(8,1,'Do you want to continue?')
-                                import_menu.addstr(9,1,'Y/n')
-                            else:
-                                # Else don't
-                                import_menu.addstr(7,1,'Sorry, currently only Python modules are supported at the moment. This is mainly for example purposes')
-                                import_menu.addstr(8,1,'y/n')
+                                import_menu.addstr(1, 1, 'Information:')
+                                import_menu.addstr(2, 1, f'Name: {metadata['NAME']}')
+                                import_menu.addstr(3, 1, f'Author: {metadata['AUTH']}')
+                                import_menu.addstr(4, 1, f'Version: {metadata['VERS']}')
+                                import_menu.addstr(5, 1, f'Description: {metadata['DESC']}')
 
-                            curses.doupdate() # update the screen before checking for user input
-                            while True:
-                                k = import_menu.getch() # Get user input 
-                                if k == ord('Y'): # check if Y was pressed
-                                    # Load the module
-                                    hardware = loadModule(file, memory)
-                                    if isinstance(hardware, tuple): # Error checking
-                                        msg = hardware[0]
-                                        msgtimer = hardware[1]
-                                        break
-                                    else:
-                                        if metadata['NAME'][:4] in tabs: # Check if module exists
-                                            msg = 'Module is already loaded!'
-                                            msgtimer = 240
+                                # Check if its a .py file
+                                if file.endswith('.py'):
+                                    # If it is, give a warning
+                                    import_menu.addstr(7,1,'Warning! Loading python hardware modules allows external code execution. Only load .py modules you trust')
+                                    import_menu.addstr(8,1,'Do you want to continue?')
+                                    import_menu.addstr(9,1,'Y/n')
+                                else:
+                                    # Else don't
+                                    import_menu.addstr(7,1,'Sorry, currently only Python modules are supported at the moment. This is mainly for example purposes')
+                                    import_menu.addstr(8,1,'y/n')
+
+                                curses.doupdate() # update the screen before checking for user input
+                                while True:
+                                    k = import_menu.getch() # Get user input 
+                                    if k == ord('Y'): # check if Y was pressed
+                                        # Load the module
+                                        hardware = loadModule(file, memory)
+                                        if isinstance(hardware, tuple): # Error checking
+                                            msg = hardware[0]
+                                            msgtimer = hardware[1]
                                             break
-                                        loaded_modules.append(hardware) # Load the module
-                                        tabs.append(f"{metadata['NAME'][:4]}") # Append the name to the tabs
-                                        selected_tab = f"{metadata['NAME'][:4]}" # then set the selected tab to it
-                                        msg = f"Succesfully loaded module {metadata['NAME']}!"
-                                        msgtimer = 120
+                                        else:
+                                            if metadata['NAME'][:4] in tabs: # Check if module exists
+                                                msg = 'Module is already loaded!'
+                                                msgtimer = 240
+                                                break
+                                            loaded_modules.append(hardware) # Load the module
+                                            tabs.append(f"{metadata['NAME'][:4]}") # Append the name to the tabs
+                                            selected_tab = f"{metadata['NAME'][:4]}" # then set the selected tab to it
+                                            msg = f"Succesfully loaded module {metadata['NAME']}!"
+                                            msgtimer = 120
+                                            break
+
+                                    elif k == ord('n'): # Break if n
                                         break
-
-                                elif k == ord('n'): # Break if n
-                                    break
-                                
-                        import_menu.erase()
-                        import_menu.noutrefresh()
-                    
-                    if (13 <= x <= 15): # Check if pressing S button, if so step to the next instruction
-                        if cpu.rom_loaded: # Check if a rom is loaded
-                            msgtimer, msg = cpu.fetch_decode_execute()
-                        else:
-                            msg = 'ROM is not loaded! Please load a ROM first.'
-                            msgtimer = 60
-
-                    if (17 <= x <= 19): # Check if pressing R button, if so toggle between running and not running the CPU
-                        if cpu.rom_loaded: # Check if the rom is loaded
-                            if cpu.paused: # Do a flip flop type check
-                                cpu.paused = False
+                                    
+                            import_menu.erase()
+                            import_menu.noutrefresh()
+                        
+                        if (13 <= x <= 15): # Check if pressing S button, if so step to the next instruction
+                            if cpu.rom_loaded: # Check if a rom is loaded
+                                msgtimer, msg = cpu.fetch_decode_execute()
                             else:
-                                cpu.paused = True
-                        else: 
-                            msg = 'ROM is not loaded! Please load a ROM first.'
-                            msgtimer = 60
+                                msg = 'ROM is not loaded! Please load a ROM first.'
+                                msgtimer = 60
+
+                        if (17 <= x <= 19): # Check if pressing R button, if so toggle between running and not running the CPU
+                            if cpu.rom_loaded: # Check if the rom is loaded
+                                if cpu.paused: # Do a flip flop type check
+                                    cpu.paused = False
+                                else:
+                                    cpu.paused = True
+                            else: 
+                                msg = 'ROM is not loaded! Please load a ROM first.'
+                                msgtimer = 60
+                except:
+                    pass
 
         # Drawing ====================================================================
         controls_menu.erase() # Clear the controls screen to prevent the previous things being shown
@@ -312,8 +315,7 @@ def app(stdscr:curses.window):
         except AttributeError:
             controls_menu.addstr(5, 1, 'A: N/A')
             controls_menu.addstr(6, 1, 'X: N/A')
-            controls_menu.addstr(7, 1, 'Y: "jrsty:' \
-            'N/A')
+            controls_menu.addstr(7, 1, 'Y: N/A')
 
         try: controls_menu.addstr(8, 1, f'PC: {cpu.pc:#06x}') # Program Counter
         except AttributeError: controls_menu.addstr(8, 1, 'PC: N/A')
